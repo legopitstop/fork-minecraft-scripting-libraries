@@ -2,6 +2,127 @@
   "name": "@minecraft/api-docs-generator",
   "entries": [
     {
+      "date": "Thu, 26 Mar 2026 20:36:26 GMT",
+      "version": "1.8.0",
+      "tag": "@minecraft/api-docs-generator_v1.8.0",
+      "comments": {
+        "minor": [
+          {
+            "author": "zachary.campbell@skyboxlabs.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "dff55b90bbb552ea829531dacb5009d796bc53cd",
+            "comment": "Add generator for rendering HTML documentation for protocol schemas"
+          }
+        ]
+      }
+    },
+    {
+      "date": "Fri, 06 Mar 2026 18:11:49 GMT",
+      "version": "1.7.0",
+      "tag": "@minecraft/api-docs-generator_v1.7.0",
+      "comments": {
+        "minor": [
+          {
+            "author": "zachary.campbell@skyboxlabs.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "240a638649b85d616828a79d9917f9dc6aad9c79",
+            "comment": "Add support for error constructors to api-docs-generator"
+          }
+        ]
+      }
+    },
+    {
+      "date": "Fri, 30 Jan 2026 21:03:31 GMT",
+      "version": "1.6.1",
+      "tag": "@minecraft/api-docs-generator_v1.6.1",
+      "comments": {
+        "patch": [
+          {
+            "author": "rlanda@microsoft.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "1b9cf99c9a09c0419dd235d755d75852d1fbf04c",
+            "comment": "Add another field to molang metadata"
+          }
+        ]
+      }
+    },
+    {
+      "date": "Tue, 27 Jan 2026 20:46:50 GMT",
+      "version": "1.6.0",
+      "tag": "@minecraft/api-docs-generator_v1.6.0",
+      "comments": {
+        "minor": [
+          {
+            "author": "agriffin@microsoft.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "025ecde17e3de39bf1d0b4e925dafc6b29d1406a",
+            "comment": "Global variables now properly generate when optional"
+          }
+        ]
+      }
+    },
+    {
+      "date": "Thu, 22 Jan 2026 17:23:10 GMT",
+      "version": "1.5.0",
+      "tag": "@minecraft/api-docs-generator_v1.5.0",
+      "comments": {
+        "minor": [
+          {
+            "author": "brandon.chan@skyboxlabs.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "bb082662983e40f3b477222ca035fcf8597ea79f",
+            "comment": "Added property and function argument bounds data to metadata"
+          }
+        ],
+        "patch": [
+          {
+            "author": "alexander.denford@skyboxlabs.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "bb082662983e40f3b477222ca035fcf8597ea79f",
+            "comment": "Fixing functions that match keywords from being surrounded by quotes in docs generation."
+          }
+        ]
+      }
+    },
+    {
+      "date": "Fri, 16 Jan 2026 21:45:44 GMT",
+      "version": "1.4.0",
+      "tag": "@minecraft/api-docs-generator_v1.4.0",
+      "comments": {
+        "minor": [
+          {
+            "author": "rlanda@microsoft.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "fe7f075b782bfde4b1a64cacaf9a7c8de6b90519",
+            "comment": "Allow docs generator to handle molang metadata"
+          }
+        ]
+      }
+    },
+    {
+      "date": "Tue, 13 Jan 2026 21:57:53 GMT",
+      "version": "1.3.0",
+      "tag": "@minecraft/api-docs-generator_v1.3.0",
+      "comments": {
+        "patch": [
+          {
+            "author": "mc-npm@microsoft.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "e88bbe1ca158509f1ec32b2e86d48a0b1819b7e6",
+            "comment": "build(dependabot): bump terminal-kit from 2.11.7 to 3.1.2"
+          }
+        ],
+        "minor": [
+          {
+            "author": "agriffin@microsoft.com",
+            "package": "@minecraft/api-docs-generator",
+            "commit": "e88bbe1ca158509f1ec32b2e86d48a0b1819b7e6",
+            "comment": "Added closure execution privileges for properties, returns, and parameters. Also renamed privileges."
+          }
+        ]
+      }
+    },
+    {
       "date": "Thu, 04 Sep 2025 23:12:17 GMT",
       "version": "1.2.4",
       "tag": "@minecraft/api-docs-generator_v1.2.4",

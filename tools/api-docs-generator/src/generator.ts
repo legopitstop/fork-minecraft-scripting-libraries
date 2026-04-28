@@ -20,13 +20,20 @@ import { MinecraftAfterEventsOrderModuleRecord } from './modules/MinecraftAfterE
 import { MinecraftBlockModule, MinecraftBlockModuleRecord } from './modules/MinecraftBlockModule';
 import { MinecraftCommandModule, MinecraftCommandModuleRecord } from './modules/MinecraftCommandModule';
 import { MinecraftEngineDataModule } from './modules/MinecraftEngineDataModules';
-import { MinecraftJsonSchemaMap, MinecraftSchemaObject } from './modules/MinecraftSchemaObject';
+import { MinecraftMolangModule, MinecraftMolangModuleRecord } from './modules/MinecraftMolangModule';
+import {
+    MinecraftJsonSchemaMap,
+    MinecraftSchemaObject,
+    MinecraftProtocolSchemaMap,
+    MinecraftProtocolSchemaObject,
+} from './modules/MinecraftSchemaObject';
 import {
     MinecraftFunction,
     MinecraftProperty,
     MinecraftScriptCoreExports,
     MinecraftScriptModule,
     MinecraftScriptModuleRecord,
+    PrivilegeTypes,
     PrivilegeValueType,
 } from './modules/MinecraftScriptModule';
 import { MinecraftVanillaDataModule } from './modules/MinecraftVanillaDataModules';
@@ -85,10 +92,19 @@ async function generateMarkupFiles(
  * Performs metadata schema upgrades to support backwards compatibility with metadata generated from older Minecraft releases.
  */
 function upgradeScriptModuleMetadataFormat(documentationJson: MinecraftScriptModule): void {
+    const upgradePrivilegeNames = (privileges?: PrivilegeValueType[]) => {
+        for (const priv of privileges ?? []) {
+            if (priv.name === PrivilegeTypes.Deprecated_ReadOnly) {
+                priv.name = PrivilegeTypes.RestrictedExec;
+            } else if (priv.name === PrivilegeTypes.Deprecated_None) {
+                priv.name = PrivilegeTypes.Default;
+            }
+        }
+    };
     const upgradePropertyPrivilegeFormat = (properties?: MinecraftProperty[]) => {
         for (const prop of properties ?? []) {
             if ('privilege' in prop) {
-                prop.get_privilege = [{ name: 'read_only' }];
+                prop.get_privilege = [{ name: PrivilegeTypes.RestrictedExec }];
                 if (typeof prop.privilege === 'string') {
                     prop.set_privilege = [{ name: prop.privilege }];
                 } else {
@@ -96,6 +112,8 @@ function upgradeScriptModuleMetadataFormat(documentationJson: MinecraftScriptMod
                 }
                 delete prop.privilege;
             }
+            upgradePrivilegeNames(prop.get_privilege);
+            upgradePrivilegeNames(prop.set_privilege);
         }
     };
     const upgradeFunctionPrivilegeFormat = (functions?: MinecraftFunction[]) => {
@@ -108,6 +126,7 @@ function upgradeScriptModuleMetadataFormat(documentationJson: MinecraftScriptMod
                 }
                 delete func.privilege;
             }
+            upgradePrivilegeNames(func.call_privilege);
         }
     };
     for (const c of documentationJson.classes ?? []) {
@@ -283,7 +302,9 @@ function loadMinecraftReleases(context: GeneratorContext): MinecraftReleasesByVe
     const allBlockModules: MinecraftBlockModule[] = [];
     const allVanillaModules: MinecraftVanillaDataModule[] = [];
     const allEngineModules: MinecraftEngineDataModule[] = [];
+    const allMolangModules: MinecraftMolangModule[] = [];
     const allJsonSchemas: MinecraftJsonSchemaMap = {};
+    const allProtocolSchemas: MinecraftProtocolSchemaMap = {};
 
     const inputFiles = utils.getFilesRecursively(context.inputDirectory);
     const parseErrors: string[] = [];
@@ -301,7 +322,11 @@ function loadMinecraftReleases(context: GeneratorContext): MinecraftReleasesByVe
                 const ajv = new Ajv();
                 try {
                     if (ajv.validateSchema(documentationJsonRaw)) {
-                        allJsonSchemas[inputFilePath] = documentationJsonRaw as MinecraftSchemaObject;
+                        if ('x-protocol-version' in documentationJsonRaw) {
+                            allProtocolSchemas[inputFilePath] = documentationJsonRaw as MinecraftProtocolSchemaObject;
+                        } else {
+                            allJsonSchemas[inputFilePath] = documentationJsonRaw as MinecraftSchemaObject;
+                        }
                     } else {
                         log.warn(`Skipping invalid JSON schema: ${inputFilePath}`);
                     }
@@ -336,6 +361,11 @@ function loadMinecraftReleases(context: GeneratorContext): MinecraftReleasesByVe
                     case 'after_events_ordering': {
                         const afterEventsOrderModule = MinecraftAfterEventsOrderModuleRecord.check(documentationJson);
                         allEngineModules.push(afterEventsOrderModule);
+                        break;
+                    }
+                    case 'molang': {
+                        const molangModule = MinecraftMolangModuleRecord.check(documentationJson);
+                        allMolangModules.push(molangModule);
                         break;
                     }
                     default: {
@@ -411,21 +441,44 @@ function loadMinecraftReleases(context: GeneratorContext): MinecraftReleasesByVe
         allMinecraftReleases[moduleMinecraftVersion].engine_data_modules.push(engineModule);
     }
 
-    const unversionedJsonSchemas: MinecraftJsonSchemaMap = {};
-    for (const path in allJsonSchemas) {
-        const jsonSchema = allJsonSchemas[path];
-        const schemaMinecraftVersion = jsonSchema['x-minecraft-version'];
-        if (!schemaMinecraftVersion) {
-            unversionedJsonSchemas[path] = jsonSchema;
-            continue;
+    for (const molangModule of allMolangModules) {
+        const moduleMinecraftVersion = molangModule.minecraft_version;
+
+        if (!allMinecraftReleases[moduleMinecraftVersion]) {
+            allMinecraftReleases[moduleMinecraftVersion] = new MinecraftRelease(moduleMinecraftVersion);
         }
 
-        if (!allMinecraftReleases[schemaMinecraftVersion]) {
-            allMinecraftReleases[schemaMinecraftVersion] = new MinecraftRelease(schemaMinecraftVersion);
-        }
-
-        allMinecraftReleases[schemaMinecraftVersion].json_schemas[path] = jsonSchema;
+        allMinecraftReleases[moduleMinecraftVersion].molang_modules.push(molangModule);
     }
+
+    const unversionedJsonSchemas: MinecraftJsonSchemaMap = {};
+    const unversionedProtocolSchemas: MinecraftProtocolSchemaMap = {};
+
+    const getSchemasByRelease = (
+        schemas: MinecraftJsonSchemaMap | MinecraftProtocolSchemaMap,
+        unversionedSchemas: MinecraftJsonSchemaMap | MinecraftProtocolSchemaMap
+    ) => {
+        for (const [path, schema] of Object.entries(schemas)) {
+            const schemaMinecraftVersion = schema['x-minecraft-version'];
+            if (!schemaMinecraftVersion) {
+                unversionedSchemas[path] = schema;
+                continue;
+            }
+
+            if (!allMinecraftReleases[schemaMinecraftVersion]) {
+                allMinecraftReleases[schemaMinecraftVersion] = new MinecraftRelease(schemaMinecraftVersion);
+            }
+
+            if ('x-protocol-version' in schema) {
+                allMinecraftReleases[schemaMinecraftVersion].protocol_schemas[path] = schema;
+            } else {
+                allMinecraftReleases[schemaMinecraftVersion].json_schemas[path] = schema;
+            }
+        }
+    };
+
+    getSchemasByRelease(allJsonSchemas, unversionedJsonSchemas);
+    getSchemasByRelease(allProtocolSchemas, unversionedProtocolSchemas);
 
     const allMinecraftReleaseVersions = Object.keys(allMinecraftReleases);
     const earliestAvailableMinecraftVersion =
@@ -439,9 +492,12 @@ function loadMinecraftReleases(context: GeneratorContext): MinecraftReleasesByVe
         );
     }
 
-    for (const path in unversionedJsonSchemas) {
-        const jsonSchema = unversionedJsonSchemas[path];
+    for (const [path, jsonSchema] of Object.entries(unversionedJsonSchemas)) {
         allMinecraftReleases[earliestAvailableMinecraftVersion].json_schemas[path] = jsonSchema;
+    }
+
+    for (const [path, protocolSchema] of Object.entries(unversionedProtocolSchemas)) {
+        allMinecraftReleases[earliestAvailableMinecraftVersion].protocol_schemas[path] = protocolSchema;
     }
 
     if (Object.keys(allMinecraftReleases).length === 0) {

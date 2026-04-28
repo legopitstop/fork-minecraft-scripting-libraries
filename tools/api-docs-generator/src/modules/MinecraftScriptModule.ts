@@ -53,6 +53,9 @@ export const MarkupCommentFlagsValidator = Intersect(
     Record({
         has_changes: Optional(Boolean),
         has_defaults: Optional(Boolean),
+        has_minimum: Optional(Boolean),
+        has_maximum: Optional(Boolean),
+        has_bounds: Optional(Boolean),
         has_errors: Optional(Boolean),
 
         prerelease: Optional(String),
@@ -62,6 +65,7 @@ export const MarkupCommentFlagsValidator = Intersect(
 
         has_runtime_conditions: Optional(Boolean),
 
+        has_closure_privilege_type_comments: Optional(Boolean),
         has_privilege_comments: Optional(Boolean),
 
         // TypeScript Specific Markup
@@ -106,6 +110,7 @@ export const DocumentationMarkupValidator = Intersect(
         examples: Optional(Array(MinecraftExampleRecord)),
         deprecated_description: Optional(Array(String).Or(Null)),
         throws_description: Optional(Array(String).Or(Null)),
+        closure_privilege_type_name: Optional(String),
     })
 );
 export type MinecraftDocumentableObject = Static<typeof DocumentationMarkupValidator>;
@@ -114,6 +119,14 @@ export const PrivilegeValueTypeRecord = Record({
     name: String,
 });
 export type PrivilegeValueType = Static<typeof PrivilegeValueTypeRecord>;
+export enum PrivilegeTypes {
+    Default = 'default',
+    RestrictedExec = 'restricted_execution',
+    EarlyExec = 'early_execution',
+
+    Deprecated_None = 'none', // now default
+    Deprecated_ReadOnly = 'read_only', // now restricted_execution
+}
 
 export const MinecraftModuleDescriptionRecord = Intersect(
     NameMarkupRecord,
@@ -170,6 +183,7 @@ export const MinecraftClosureTypeRecord = Lazy(() =>
     Record({
         argument_types: Array(MinecraftTypeRecord),
         return_type: MinecraftTypeRecord,
+        call_privilege: Optional(PrivilegeValueTypeRecord),
     })
 );
 export type MinecraftClosureType = Static<typeof MinecraftClosureTypeRecord>;
@@ -331,8 +345,16 @@ export const MinecraftPropertyRecord = Intersect(
     Record({
         type: MinecraftTypeRecord,
         is_read_only: Boolean,
+        min_value: Optional(Unknown.Or(Null)),
+        max_value: Optional(Unknown.Or(Null)),
         is_baked: Optional(Boolean),
         default_value: Optional(Unknown.Or(Null)),
+        min_added: Optional(Boolean),
+        min_changed: Optional(Boolean),
+        min_removed: Optional(Boolean),
+        max_added: Optional(Boolean),
+        max_changed: Optional(Boolean),
+        max_removed: Optional(Boolean),
 
         // Runtime Markup
         property_name: Optional(String.Or(Null)),
@@ -342,8 +364,8 @@ export const MinecraftPropertyRecord = Intersect(
         set_privilege: Optional(Array(PrivilegeValueTypeRecord)),
         get_allowed_in_early_execution: Optional(Boolean),
         set_allowed_in_early_execution: Optional(Boolean),
-        get_disallowed_in_read_only: Optional(Boolean),
-        set_disallowed_in_read_only: Optional(Boolean),
+        get_disallowed_in_restricted_execution: Optional(Boolean),
+        set_disallowed_in_restricted_execution: Optional(Boolean),
     })
 );
 export type MinecraftProperty = Static<typeof MinecraftPropertyRecord>;
@@ -365,6 +387,12 @@ export const MinecraftFunctionArgumentRecord = Intersect(
     Record({
         type: MinecraftTypeRecord,
         details: Optional(MinecraftFunctionArgumentDetailsRecord.Or(Null)),
+        min_added: Optional(Boolean),
+        min_changed: Optional(Boolean),
+        min_removed: Optional(Boolean),
+        max_added: Optional(Boolean),
+        max_changed: Optional(Boolean),
+        max_removed: Optional(Boolean),
 
         // Runtime Markup
         argument_description: Optional(Array(String).Or(Null)),
@@ -399,7 +427,9 @@ export const MinecraftFunctionRecord = Intersect(
         stable_only: Optional(Boolean),
         call_privilege: Optional(Array(PrivilegeValueTypeRecord)),
         call_allowed_in_early_execution: Optional(Boolean),
-        call_disallowed_in_read_only: Optional(Boolean),
+        call_disallowed_in_restricted_execution: Optional(Boolean),
+        return_type_has_closure_privilege_type_comments: Optional(Boolean),
+        return_type_closure_privilege_type_name: Optional(String),
     })
 );
 export type MinecraftFunction = Static<typeof MinecraftFunctionRecord>;
@@ -413,6 +443,7 @@ export const MinecraftErrorRecord = Intersect(
     Record({
         type: MinecraftTypeRecord,
 
+        functions: Optional(Array(MinecraftFunctionRecord).Or(Null)),
         properties: Optional(Array(MinecraftPropertyRecord).Or(Null)),
 
         // Runtime Markup
@@ -420,6 +451,8 @@ export const MinecraftErrorRecord = Intersect(
         from_module: Optional(MinecraftModuleDescriptionRecord.Or(Null)),
         class_name: Optional(String.Or(Null)),
         class_description: Optional(Array(String).Or(Null)),
+        has_constructor: Optional(Boolean.Or(Null)),
+        has_member_functions: Optional(Boolean.Or(Null)),
         show_prior_warning: Optional(Boolean),
         prior_link: Optional(String),
     })

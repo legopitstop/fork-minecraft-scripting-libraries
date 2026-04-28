@@ -1,8 +1,33 @@
 # Change Log - @minecraft/math
 
-<!-- This log was last generated on Thu, 04 Sep 2025 23:12:17 GMT and should not be manually modified. -->
+<!-- This log was last generated on Wed, 25 Feb 2026 01:02:45 GMT and should not be manually modified. -->
 
 <!-- Start content -->
+
+## 2.4.0
+
+Wed, 25 Feb 2026 01:02:45 GMT
+
+### Minor changes
+
+- Added color constants (alexander.denford@skyboxlabs.com)
+
+## 2.3.1
+
+Mon, 26 Jan 2026 20:10:37 GMT
+
+### Patches
+
+- Fix @minecraft/math import path (zachary.campbell@skyboxlabs.com)
+
+## 2.3.0
+
+Tue, 13 Jan 2026 21:57:53 GMT
+
+### Minor changes
+
+- Added AABBUtils for performing functional operations on AABB objects, added Vector3Utils ceil, min and max (niamh.cuileann@skyboxlabs.com)
+- VectorXZUtils and more Vector2 utilities. (1589lego@gmail.com)
 
 ## 2.2.9
 

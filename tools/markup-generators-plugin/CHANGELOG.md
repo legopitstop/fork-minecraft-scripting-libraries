@@ -1,8 +1,72 @@
 # Change Log - @minecraft/markup-generators-plugin
 
-<!-- This log was last generated on Mon, 29 Sep 2025 17:42:55 GMT and should not be manually modified. -->
+<!-- This log was last generated on Thu, 26 Mar 2026 20:36:26 GMT and should not be manually modified. -->
 
 <!-- Start content -->
+
+## 1.5.0
+
+Thu, 26 Mar 2026 20:36:26 GMT
+
+### Minor changes
+
+- Add generator for rendering HTML documentation for protocol schemas (zachary.campbell@skyboxlabs.com)
+- Bump @minecraft/api-docs-generator to v1.8.0
+
+## 1.4.2
+
+Fri, 06 Mar 2026 18:11:49 GMT
+
+### Patches
+
+- Bump @minecraft/api-docs-generator to v1.7.0
+
+## 1.4.1
+
+Fri, 30 Jan 2026 21:03:31 GMT
+
+### Patches
+
+- Bump @minecraft/api-docs-generator to v1.6.1
+
+## 1.4.0
+
+Tue, 27 Jan 2026 20:46:50 GMT
+
+### Minor changes
+
+- Global variables now properly generate when optional (agriffin@microsoft.com)
+- Bump @minecraft/api-docs-generator to v1.6.0
+
+## 1.3.0
+
+Thu, 22 Jan 2026 17:23:10 GMT
+
+### Minor changes
+
+- Added property and function argument bounds data to metadata (brandon.chan@skyboxlabs.com)
+- Bump @minecraft/api-docs-generator to v1.5.0
+
+### Patches
+
+- Fixing functions that match keywords from being surrounded by quotes in docs generation. (alexander.denford@skyboxlabs.com)
+
+## 1.2.1
+
+Fri, 16 Jan 2026 21:45:44 GMT
+
+### Patches
+
+- Bump @minecraft/api-docs-generator to v1.4.0
+
+## 1.2.0
+
+Tue, 13 Jan 2026 21:57:53 GMT
+
+### Minor changes
+
+- Added closure execution privileges for properties, returns, and parameters. Also renamed privileges. (agriffin@microsoft.com)
+- Bump @minecraft/api-docs-generator to v1.3.0
 
 ## 1.1.1
 
